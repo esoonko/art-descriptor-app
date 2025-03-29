@@ -1,0 +1,45 @@
+---
+steps:
+  - id: "Access Token"
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: /bin/sh
+    args:
+      - -c
+      - |
+        gcloud auth print-access-token > /workspace/GOOGLE_OAUTH_ACCESS_TOKEN
+  - id: "build image"
+    name: gcr.io/cloud-builders/docker
+    entrypoint: /bin/sh
+    args:
+      - -c
+      - |
+        docker build -t ${_REGISTRY_URI}/${_IMAGE}:${SHORT_SHA} -f ${_DOCKERFILE_PATH}/Dockerfile \
+        --build-arg ACCESS_TOKEN=$(cat /workspace/GOOGLE_OAUTH_ACCESS_TOKEN) \
+        --build-arg GOOGLE_PROJECT_ID=${PROJECT_ID} \
+        ${_DOCKERFILE_PATH}
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - ${_REGISTRY_URI}/${_IMAGE}:${SHORT_SHA}
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - "run"
+      - "services"
+      - "update"
+      - "${_SERVICE}"
+      - "--image"
+      - "${_REGISTRY_URI}/${_IMAGE}:${SHORT_SHA}"
+      - "--region"
+      - "${_REGION}"
+      - "--update-env-vars"
+      - "PROJECT_ID=${PROJECT_ID},USE_CLOUD_LOGGING=TRUE"
+
+
+substitutions:
+  _REGISTRY_URI: MISSING_REGISTRY_URI
+  _REGION: MISSING_REGION
+  _EXTRA_INDEX_URL: MISSING_EXTRA_INDEX_URL
+  _SERVICE: MISSING_SERVICE
+  _IMAGE: MISSING_IMAGE
+  _DOCKERFILE_PATH: MISSING_DOCKERFILE_PATH
