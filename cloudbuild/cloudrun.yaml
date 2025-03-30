@@ -44,5 +44,6 @@ substitutions:
   _IMAGE: MISSING_IMAGE
   _DOCKERFILE_PATH: MISSING_DOCKERFILE_PATH
 
+logsBucket: 'gs://${_LOGS_BUCKET}'
 options:
-  logging: CLOUD_LOGGING_ONLY
+  logging: GCS_ONLY
