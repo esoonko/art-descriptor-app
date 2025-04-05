@@ -1,8 +1,8 @@
 import { json, error } from '@sveltejs/kit';
 import { generateContent } from '$lib/server/prompt-llm';
 import { insertIntoBigQuery, fetchFromBigQuery, dateToDisplay, convertToHistoryData } from '$lib/server/bigquery';
-import type { BigqueryData, HistoryData } from '$lib/server/bigquery';
 import type { RequestEvent } from '@sveltejs/kit';
+import { getHistoryCache, setHistoryCache } from '$lib/server/history-cache';
 
 export async function GET({ url }: RequestEvent) {
   try {
@@ -17,9 +17,15 @@ export async function GET({ url }: RequestEvent) {
       return error(400, { message: 'Invalid page number. Must be between 1 and 4.' });
     }
 
-    const historyData = await fetchFromBigQuery();
+    let historyData = getHistoryCache();  // Try to get history data from cache
+
+    if (!historyData) {  // If cache is empty, fetch from BigQuery
+      const bigqueryData = await fetchFromBigQuery();
+      historyData = bigqueryData.map(convertToHistoryData)
+      setHistoryCache(historyData);  // Store in memory for future requests
+    }
     const filteredData = historyData.filter(item => item.page === page);
-    return json(filteredData.map(convertToHistoryData));
+    return json(filteredData);
   } catch (err) {
     console.error('Error:', err);
     return json({ error: 'Failed to generate content' }, { status: 500 });

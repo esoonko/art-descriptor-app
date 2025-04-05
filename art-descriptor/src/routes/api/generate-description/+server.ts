@@ -3,6 +3,7 @@ import { generateContent } from '$lib/server/prompt-llm';
 import { insertIntoBigQuery, dateToDisplay } from '$lib/server/bigquery';
 import type { BigqueryData, HistoryData } from '$lib/server/bigquery';
 import type { RequestEvent } from '@sveltejs/kit';
+import { addToHistoryCache } from '$lib/server/history-cache';
 
 function convertToDisplayData(bigqueryData: BigqueryData): HistoryData {
     const timestampValue = typeof bigqueryData.timestamp === 'object' && 'value' in bigqueryData.timestamp
@@ -38,7 +39,9 @@ export async function GET({ url }: RequestEvent) {
     };
 
     insertIntoBigQuery(bigqueryData)
-    const data = convertToDisplayData(bigqueryData)
+    const data: HistoryData = convertToDisplayData(bigqueryData)
+    addToHistoryCache(data);
+
 
     return json(data);
   } catch (err) {
