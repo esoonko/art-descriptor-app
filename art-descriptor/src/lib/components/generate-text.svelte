@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { ScrollArea } from "$lib/components/ui/scroll-area/index.js";
+    import { animateTyping } from "./typewriter-effect"
     export let page: string;
     export let divclass: string;
     export let scrollarea: string;
@@ -35,12 +36,15 @@
   <ScrollArea class={scrollarea}>
     <div class={divclass}>
       {#if loadingGenerated}
-        <p>Loading</p>
+        <p>Generating</p>
       {:else if generated}
-        <div>{generated.timestamp}</div>
-        {generated.text}
+        <div><span use:animateTyping={[
+          generated.timestamp
+      ]}></span></div>
+      <span use:animateTyping={[
+        generated.text
+    ]}></span>
       {/if}
-    </div>
   
     {#if !loadingHistory}
       {#each history as item}
@@ -50,5 +54,6 @@
         {item.text}
       {/each}
     {/if}
+  </div>
   </ScrollArea>
   

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import GenerateText from '$lib/components/generate-text.svelte';
+  import GenerateText from '../../lib/components/generate-text.svelte';
 
   const page = '2';  // This can be dynamic based on your page logic
   const scrollarea = "font-sans text-[rgb(27,18,18)] text-justify mt-[60px] ml-[-80px] tracking-wide leading-custom font-normal px-[5px] w-[calc(100%-100px)] text-[11px]"
