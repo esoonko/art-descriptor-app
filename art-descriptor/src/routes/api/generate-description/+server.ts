@@ -1,22 +1,21 @@
 import { json, error } from '@sveltejs/kit';
 import { generateContent } from '$lib/server/prompt-llm';
+import { insertIntoBigQuery, dateToDisplay } from '$lib/server/bigquery';
+import type { BigqueryData, HistoryData } from '$lib/server/bigquery';
 import type { RequestEvent } from '@sveltejs/kit';
+import { addToHistoryCache } from '$lib/server/history-cache';
 
-function now() {
-    const options: Intl.DateTimeFormatOptions = {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-        timeZone: 'CET',
+function convertToDisplayData(bigqueryData: BigqueryData): HistoryData {
+    const timestampValue = typeof bigqueryData.timestamp === 'object' && 'value' in bigqueryData.timestamp
+        ? bigqueryData.timestamp.value
+        : bigqueryData.timestamp;
+  
+    return {
+        timestamp: dateToDisplay(timestampValue),
+        text: bigqueryData.text,
+        page: bigqueryData.page
     };
-    const date = new Date();
-    const formattedDate = new Intl.DateTimeFormat('en-GB', options).format(date);
-    return formattedDate.replace(',', '').concat(' CET');
-}
+  }
 
 export async function GET({ url }: RequestEvent) {
   try {
@@ -33,11 +32,16 @@ export async function GET({ url }: RequestEvent) {
 
     const response = await generateContent(page);
 
-    const data = {
-      timestamp: now(),
-      text: response,
-      page: pageNumber
+    const bigqueryData: BigqueryData = {
+      timestamp: new Date().toISOString(),
+      text: response ?? '',
+      page: page
     };
+
+    insertIntoBigQuery(bigqueryData)
+    const data: HistoryData = convertToDisplayData(bigqueryData)
+    addToHistoryCache(data);
+
 
     return json(data);
   } catch (err) {

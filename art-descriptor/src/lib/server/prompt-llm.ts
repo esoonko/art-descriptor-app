@@ -45,13 +45,10 @@ function getPageByDenomination(denomination: string) {
   }
 
 async function generateContent( page: string ) {
-    console.log(page)
     const pageConfig = getPageByDenomination(page);
     const promptText = pageConfig.prompt || 'Describe max 1 paragraph.';
     const systemPromptText = pageConfig.systemprompt || 'You describe image. Avoid interpretations. Avoid mentioning it is a digital illustration. Avoid ending your answer with a question. Avoid talking about the style. Do not start the sentence with "this artwork depicts" or any text in such style. Just start describing. Describe max 1 paragraph.';
 
-    console.log(`${image_bucket_url}${pageConfig.name}/${pageConfig.image_urls[0]}`)
-    console.log(promptText)
     const request = {
         contents: [
             {
@@ -88,7 +85,6 @@ async function generateContent( page: string ) {
         const response = result.response;
         if (response.candidates && response.candidates.length > 0) {
             const text = response.candidates[0].content.parts[0].text;
-            console.log('Generated Text:', text);
             return text;
         } else {
             console.error('No candidates found in the response.');

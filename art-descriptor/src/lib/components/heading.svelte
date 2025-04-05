@@ -2,6 +2,7 @@
     h1 {
       font-family: Verdana, sans-serif;
       font-size: 20px;
+      position: fixed;
       color: rgb(27, 18, 18);
       text-align: left;
       margin-left: 10px;
