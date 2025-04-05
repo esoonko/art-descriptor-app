@@ -1,0 +1,27 @@
+
+image_bucket_url: "gs://junda-portfolio_art_images/"
+pages:
+- denomination: 1
+  name: parkstrasse44-part1
+  image_urls: ["3.png"]
+  systemprompt:
+  prompt:
+
+- denomination: 2
+  name: parkstrasse44-part3
+  image_urls: ["1.png"]
+  systemprompt:
+  prompt:
+
+- denomination: 3
+  name: parkstrasse44-part3.1
+  image_urls: ["2.png"]
+  systemprompt:
+  prompt:
+
+- denomination: 4
+  name: parkstrasse44-part4
+  image_urls: ["1.jpg"]
+  systemprompt:
+  prompt:
+

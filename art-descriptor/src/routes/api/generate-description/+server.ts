@@ -1,5 +1,6 @@
-import { json } from '@sveltejs/kit';
+import { json, error } from '@sveltejs/kit';
 import { generateContent } from '$lib/server/prompt-llm';
+import type { RequestEvent } from '@sveltejs/kit';
 
 function now() {
     const options: Intl.DateTimeFormatOptions = {
@@ -17,18 +18,30 @@ function now() {
     return formattedDate.replace(',', '').concat(' CET');
 }
 
-export async function GET() {
-    try {
-        const response = await generateContent();
+export async function GET({ url }: RequestEvent) {
+  try {
+    const page = url.searchParams.get('page');
 
-        const data = {
-            timestamp: now(),
-            text: response?.replace('\n',''),
-        };
-
-        return json(data);
-    } catch (error) {
-        console.error('Error:', error);
-        return json({ error: 'Failed to generate content' }, { status: 500 });
+    if (!page) {
+      return error(400, { message: 'Page parameter is required' });
     }
+
+    const pageNumber = parseInt(page);
+    if (isNaN(pageNumber) || pageNumber < 1 || pageNumber > 4) {
+      return error(400, { message: 'Invalid page number. Must be between 1 and 4.' });
+    }
+
+    const response = await generateContent(page);
+
+    const data = {
+      timestamp: now(),
+      text: response,
+      page: pageNumber
+    };
+
+    return json(data);
+  } catch (err) {
+    console.error('Error:', err);
+    return json({ error: 'Failed to generate content' }, { status: 500 });
+  }
 }

@@ -1,0 +1,18 @@
+# version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+        PROJECT_ID: ${PROJECT_ID}
+        ACCESS_TOKEN: ${ACCESS_TOKEN}
+        REGION: ${REGION}
+    volumes:
+      - ./app/:/opt/app
+      - ~/.config/gcloud/:/root/.config/gcloud
+    command: node build/index.js
+    ports:
+      - '8080:8080'
+volumes:
+  app:

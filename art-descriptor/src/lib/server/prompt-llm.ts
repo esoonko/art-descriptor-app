@@ -1,7 +1,10 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
+import { loadConfig } from './config';
 
 export { generateContent };
+
+const { image_bucket_url, pages } = loadConfig();
 
 const {
     FunctionDeclarationSchemaType,
@@ -23,7 +26,7 @@ const generativeModel = vertexAI.getGenerativeModel({
     generationConfig: {maxOutputTokens: 256},
     systemInstruction: {
       role: 'system',
-      parts: [{"text": `For example, you are a helpful customer service agent.`}]
+      parts: [{"text": `You describe image. Avoid interpretations. Avoid mentioning it is a digital illustration. Avoid ending your answer with a question. Avoid talking about the style. Do not start the sentence with "this artwork depicts" or any text in such style. Just start describing. Describe max 1 paragraph.`}]
     },
 });
 
@@ -31,7 +34,24 @@ const generativeModelPreview = vertexAI.preview.getGenerativeModel({
     model: MODEL_ID,
 });
 
-async function generateContent() {
+function getPageByDenomination(denomination: string) {
+    const pageConfig = pages.find((page) => String(page.denomination) === denomination);
+    
+    if (!pageConfig) {
+      throw new Error(`Page with denomination ${denomination} not found`);
+    }
+  
+    return pageConfig;
+  }
+
+async function generateContent( page: string ) {
+    console.log(page)
+    const pageConfig = getPageByDenomination(page);
+    const promptText = pageConfig.prompt || 'Describe max 1 paragraph.';
+    const systemPromptText = pageConfig.systemprompt || 'You describe image. Avoid interpretations. Avoid mentioning it is a digital illustration. Avoid ending your answer with a question. Avoid talking about the style. Do not start the sentence with "this artwork depicts" or any text in such style. Just start describing. Describe max 1 paragraph.';
+
+    console.log(`${image_bucket_url}${pageConfig.name}/${pageConfig.image_urls[0]}`)
+    console.log(promptText)
     const request = {
         contents: [
             {
@@ -40,10 +60,10 @@ async function generateContent() {
                     {
                         fileData: {
                             mimeType: 'image/jpeg',
-                            fileUri: 'gs://junda-portfolio_art_images/test.jpeg'
+                            fileUri: `${image_bucket_url}${pageConfig.name}/${pageConfig.image_urls[0]}`
                         }
                     },
-                    { text: 'Describe max 1 paragraph.' }
+                    { text: promptText }
                 ]
             }
         ],
@@ -51,7 +71,7 @@ async function generateContent() {
             role: 'system',
             parts: [
                 {
-                    text: 'You describe image. Avoid interpretations. Avoid mentioning it is a digital illustration. Avoid ending your answer with a question. Avoid talking about the style. Do not start the sentence with "this artwork depicts" or any text in such style. Just start describing. Describe max 1 paragraph.'
+                    text: systemPromptText
                 }
             ]
         },
