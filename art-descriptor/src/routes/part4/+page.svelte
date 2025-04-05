@@ -6,7 +6,7 @@
 
   onMount(async () => {
     try {
-      const res = await fetch('/api/generate-description');
+      const res = await fetch('/api/generate-description?page=4');
       if (res.ok) {
         data = await res.json();
       } else {
