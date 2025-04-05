@@ -4,6 +4,7 @@ import yaml from 'js-yaml';
 interface Config {
 	image_bucket_url: string;
 	pages: PageConfig[];
+	bigqueryConfig: BigqueryConfig;
 }
 
 interface PageConfig {
@@ -12,6 +13,11 @@ interface PageConfig {
 	image_urls: string[];
 	systemprompt: string;
 	prompt: string;
+}
+
+interface BigqueryConfig {
+	dataset: string;
+	table: string;
 }
 
 export function loadConfig(): Config {

@@ -1,5 +1,8 @@
 
 image_bucket_url: "gs://junda-portfolio_art_images/"
+bigqueryConfig:
+  dataset: art_description
+  table: descriptions
 pages:
 - denomination: 1
   name: parkstrasse44-part1
