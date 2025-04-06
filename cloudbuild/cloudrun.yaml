@@ -16,6 +16,7 @@ steps:
         docker build -t ${_REGISTRY_URI}/${_IMAGE}:${SHORT_SHA} -f ${_DOCKERFILE_PATH}/Dockerfile \
         --build-arg ACCESS_TOKEN=$(cat /workspace/GOOGLE_OAUTH_ACCESS_TOKEN) \
         --build-arg GOOGLE_PROJECT_ID=${PROJECT_ID} \
+        --build-arg REGION=${_REGION} \
         ${_DOCKERFILE_PATH}
   - name: gcr.io/cloud-builders/docker
     args:
