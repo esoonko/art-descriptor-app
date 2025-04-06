@@ -3,6 +3,7 @@ import yaml from 'js-yaml';
 
 interface Config {
 	image_bucket_url: string;
+	model_id: string;
 	pages: PageConfig[];
 	bigqueryConfig: BigqueryConfig;
 }

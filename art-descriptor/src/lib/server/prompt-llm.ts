@@ -4,7 +4,7 @@ import { loadConfig } from './config';
 
 export { generateContent };
 
-const { image_bucket_url, pages } = loadConfig();
+const { image_bucket_url, model_id, pages } = loadConfig();
 
 const {
     FunctionDeclarationSchemaType,
@@ -15,8 +15,7 @@ const {
 
 const PROJECT_ID: string = env.PROJECT_ID || '';
 const LOCATION_ID: string = env.LOCATION_ID || '';
-const MODEL_ID: string = env.MODEL_ID || '';
-const ACCESS_TOKEN: string = env.ACCESS_TOKEN || '';
+const MODEL_ID: string = model_id
 
 const vertexAI = new VertexAI({project: PROJECT_ID, location: LOCATION_ID});
   

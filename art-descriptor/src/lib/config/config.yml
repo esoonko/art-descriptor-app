@@ -1,5 +1,6 @@
 
 image_bucket_url: "gs://junda-portfolio_art_images/"
+model_id: "gemini-2.0-flash-lite-001"
 bigqueryConfig:
   dataset: art_description
   table: descriptions

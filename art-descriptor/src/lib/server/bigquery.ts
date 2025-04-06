@@ -1,5 +1,6 @@
 import { BigQuery, BigQueryTimestamp } from '@google-cloud/bigquery';
 import { loadConfig } from './config';
+import { env } from '$env/dynamic/private';
 
 const { bigqueryConfig } = loadConfig();
 
@@ -15,7 +16,9 @@ export interface HistoryData {
     page: string
   }
 
-const bigquery = new BigQuery();
+  const bigquery = new BigQuery({
+    projectId: env.PROJECT_ID,
+  });
 
 export async function fetchFromBigQuery(): Promise<BigqueryData[]> {
     try {
