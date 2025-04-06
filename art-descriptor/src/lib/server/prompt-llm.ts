@@ -1,4 +1,3 @@
-import { json, type RequestHandler } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { loadConfig } from './config';
 
@@ -7,7 +6,6 @@ export { generateContent };
 const { image_bucket_url, model_id, pages } = loadConfig();
 
 const {
-    FunctionDeclarationSchemaType,
     HarmBlockThreshold,
     HarmCategory,
     VertexAI

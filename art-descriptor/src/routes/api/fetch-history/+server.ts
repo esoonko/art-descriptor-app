@@ -1,6 +1,5 @@
 import { json, error } from '@sveltejs/kit';
-import { generateContent } from '$lib/server/prompt-llm';
-import { insertIntoBigQuery, fetchFromBigQuery, dateToDisplay, convertToHistoryData } from '$lib/server/bigquery';
+import { fetchFromBigQuery, convertToHistoryData } from '$lib/server/bigquery';
 import type { RequestEvent } from '@sveltejs/kit';
 import { getHistoryCache, setHistoryCache } from '$lib/server/history-cache';
 

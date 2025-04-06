@@ -2,8 +2,7 @@ FROM node:22-alpine as base
 WORKDIR /opt/analytics-dashboard
 
 COPY . .
-ARG GOOGLE_PROJECT_ID
-ENV PROJECT_ID=$GOOGLE_PROJECT_ID
+ENV PROJECT_ID=$PROJECT_ID
 ENV REGION=$REGION
 RUN npm install
 RUN npm run build
