@@ -1,59 +1,79 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { ScrollArea } from "$lib/components/ui/scroll-area/index.js";
-    import { animateTyping } from "./typewriter-effect"
-    export let page: string;
-    export let divclass: string;
-    export let scrollarea: string;
-    export let historydivclass: string;
+  import { onMount } from 'svelte';
+  import { ScrollArea } from "$lib/components/ui/scroll-area/index.js";
+  import { animateTyping } from "./typewriter-effect"
+  import { Button } from "$lib/components/ui/button/index.js";
+  export let page: string;
+  export let divclass: string;
+  export let scrollarea: string;
+  export let historydivclass: string;
+
+  let history: any[] = [];
+  let historyAfterFirst: any[] = [];
+  let loadingGenerated = false;
+  let firstGenerated = false;
+  let loadingHistory = true;
+
+  onMount(async () => {
+
+    // Fetch history data
+    await fetch(`/api/fetch-history?page=${page}`)
+      .then(res => res.json())
+      .then(data => {
+        history = data;
+      })
+      .catch(err => console.error('Error fetching history:', err))
+      .finally(() => loadingHistory = false);
+  });
+
+  async function generateDescription() {
+      loadingGenerated = true;
+
+      await fetch(`/api/generate-description?page=${page}`);
+
+  await fetch(`/api/fetch-history?page=${page}`)
+      .then(res => res.json())
+      .then(data => {
+        history = data;
+        historyAfterFirst = history.slice(1)
+      })
+      .catch(err => console.error('Error generating:', err))
+      .then(() => firstGenerated = true)
+      .finally(() => loadingGenerated = false);
+}
+</script>
+
+<ScrollArea class={scrollarea}>
+  {#if !loadingGenerated}
+      <Button variant="link" on:click={generateDescription}>Generate</Button>
+  {:else if loadingGenerated}
+  <Button variant="link">Generating</Button>
+  {/if}
   
-    let generated: { timestamp: any; text: any; } | null = null;
-    let history: any[] = [];
-    let loadingGenerated = true;
-    let loadingHistory = true;
-  
-    onMount(async () => {
-      // Fetch generated description
-      fetch(`/api/generate-description?page=${page}`)
-        .then(res => res.json())
-        .then(data => {
-          generated = data;
-        })
-        .catch(err => console.error('Error generating:', err))
-        .finally(() => loadingGenerated = false);
-  
-      // Fetch history data
-      fetch(`/api/fetch-history?page=${page}`)
-        .then(res => res.json())
-        .then(data => {
-          history = data;
-        })
-        .catch(err => console.error('Error fetching history:', err))
-        .finally(() => loadingHistory = false);
-    });
-  </script>
-  
-  <ScrollArea class={scrollarea}>
-    <div class={divclass}>
-      {#if loadingGenerated}
-        <p>Generating</p>
-      {:else if generated}
-        <div><span use:animateTyping={[
-          generated.timestamp
+  <div class={divclass}>
+    {#if !loadingGenerated && firstGenerated && !loadingHistory }
+      <div><span use:animateTyping={[
+        history[0].timestamp
       ]}></span></div>
       <span use:animateTyping={[
-        generated.text
-    ]}></span>
-      {/if}
-  
-    {#if !loadingHistory}
-      {#each history as item}
-        <div class={historydivclass}>
-          {item.timestamp}
-        </div>
-        {item.text}
-      {/each}
+          history[0].text
+      ]}></span>
     {/if}
-  </div>
-  </ScrollArea>
-  
+
+  {#if firstGenerated && !loadingHistory}
+    {#each historyAfterFirst as item}
+      <div class={historydivclass}>
+        {item.timestamp}
+      </div>
+      {item.text}
+    {/each}
+  {:else if !loadingHistory }
+      {#each history as item}
+      <div class={historydivclass}>
+          {item.timestamp}
+      </div>
+      {item.text}
+      {/each}
+  {/if}
+</div>
+</ScrollArea>

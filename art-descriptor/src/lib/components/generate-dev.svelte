@@ -1,0 +1,82 @@
+<script lang="ts">
+    import { onMount } from 'svelte';
+    import { ScrollArea } from "$lib/components/ui/scroll-area/index.js";
+    import { animateTyping } from "./typewriter-effect"
+    import { Button } from "$lib/components/ui/button/index.js";
+    export let page: string;
+    export let divclass: string;
+    export let scrollarea: string;
+    export let historydivclass: string;
+  
+    let history: any[] = [];
+    let historyAfterFirst: any[] = [];
+    let loadingGenerated = false;
+    let firstGenerated = false;
+    let loadingHistory = true;
+  
+    onMount(async () => {
+  
+      // Fetch history data
+      fetch(`/api/fetch-history-dev?page=${page}`)
+        .then(res => res.json())
+        .then(data => {
+          history = data;
+        })
+        .catch(err => console.error('Error fetching history:', err))
+        .finally(() => loadingHistory = false);
+    });
+
+    async function generateDescription() {
+        loadingGenerated = true;
+
+        await fetch(`/api/generate-description-dev?page=${page}`);
+
+		await fetch(`/api/fetch-history-dev?page=${page}`)
+        .then(res => res.json())
+        .then(data => {
+          history = data;
+          historyAfterFirst = history.slice(1)
+        })
+        .catch(err => console.error('Error generating:', err))
+        .then(() => firstGenerated = true)
+        .finally(() => loadingGenerated = false);
+
+        console.log(historyAfterFirst)
+	}
+  </script>
+  
+  <ScrollArea class={scrollarea}>
+    {#if !loadingGenerated}
+        <Button variant="link" on:click={generateDescription}>Generate</Button>
+    {:else if loadingGenerated}
+    <Button variant="link">Generating</Button>
+    {/if}
+    
+    <div class={divclass}>
+      {#if !loadingGenerated && firstGenerated && !loadingHistory }
+        <div><span use:animateTyping={[
+          history[0].timestamp
+        ]}></span></div>
+        <span use:animateTyping={[
+            history[0].text
+        ]}></span>
+      {/if}
+  
+    {#if firstGenerated && !loadingHistory}
+      {#each historyAfterFirst as item}
+        <div class={historydivclass}>
+          {item.timestamp}
+        </div>
+        {item.text}
+      {/each}
+    {:else if !loadingHistory }
+        {#each history as item}
+        <div class={historydivclass}>
+            {item.timestamp}
+        </div>
+        {item.text}
+        {/each}
+    {/if}
+  </div>
+  </ScrollArea>
+  
