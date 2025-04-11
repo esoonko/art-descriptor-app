@@ -44,15 +44,15 @@
 </script>
 
 <ScrollArea class={scrollarea}>
+  <div class={divclass}>
   {#if !loadingGenerated}
-      <Button variant="link" on:click={generateDescription}>Generate</Button>
+  <Button variant="link" on:click={generateDescription}>Generate</Button>
   {:else if loadingGenerated}
   <Button variant="link">Generating</Button>
   {/if}
   
-  <div class={divclass}>
     {#if !loadingGenerated && firstGenerated && !loadingHistory }
-      <div><span use:animateTyping={[
+      <div class={historydivclass}><span use:animateTyping={[
         history[0].timestamp
       ]}></span></div>
       <span use:animateTyping={[
