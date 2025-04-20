@@ -7,6 +7,8 @@
   export let divclass: string;
   export let scrollarea: string;
   export let historydivclass: string;
+  export let buttonclass: string;
+  export let timedivclass: string;
 
   let history: any[] = [];
   let historyAfterFirst: any[] = [];
@@ -46,18 +48,22 @@
 <ScrollArea class={scrollarea}>
   <div class={divclass}>
   {#if !loadingGenerated}
-  <Button variant="link" on:click={generateDescription}>Generate</Button>
+      <Button class={buttonclass}
+              variant="link" on:click={generateDescription}>Generate</Button>
   {:else if loadingGenerated}
-  <Button variant="link">Generating</Button>
+  <Button class={buttonclass}
+  variant="link">Generating</Button>
   {/if}
   
     {#if !loadingGenerated && firstGenerated && !loadingHistory }
       <div class={historydivclass}><span use:animateTyping={[
         history[0].timestamp
-      ]}></span></div>
+      ]}></span></div> 
+      <div class={timedivclass}>
       <span use:animateTyping={[
           history[0].text
       ]}></span>
+      </div>
     {/if}
 
   {#if firstGenerated && !loadingHistory}
@@ -65,14 +71,18 @@
       <div class={historydivclass}>
         {item.timestamp}
       </div>
-      {item.text}
+      <div class={timedivclass}>
+        {item.text}
+      </div>
     {/each}
   {:else if !loadingHistory }
       {#each history as item}
       <div class={historydivclass}>
           {item.timestamp}
       </div>
-      {item.text}
+      <div class={timedivclass}>
+            {item.text}
+          </div>
       {/each}
   {/if}
 </div>
